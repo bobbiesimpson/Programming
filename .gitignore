@@ -1,0 +1,13 @@
+*.dvi
+*.aux
+*.log
+*.prv
+*.ps
+*.rel
+*.synctex.gz
+_region*
+*.texshop
+auto/
+*.bbl
+*.blg
+.DS_Store

@@ -1,0 +1,61 @@
+\chapter{Diffpack framework}
+
+This is a project that I have started to get involved with since March 2011 and has the potential to be quite fruitful. Diffpack is a numerical analysis software library that allows a huge variety of problems to be solved using various numerical methods. There are finite difference and finite element implementations that are capable of solving various linear and non-linear problems and there are variety of solvers available to the user. However, on a first introduction to the software, it may seem quite daunting to use, especially if the user's programming background is limited. Therefore, there are a few points to bear in mind when learning about Diffpack
+\begin{itemize}
+\item  You will still have to program in C++! The idea with Diffpack is that you write software that will use the various libraries containing all the magical numerical code but there are certain functions that you will need to write to get something to work.
+\item Diffpack only really deals with the analysis stage in the solution procedure. It assumes that a mesh has already been created (Diffpack has some limited meshing capabilities) at the start and once the problem has been solved, it will output the result to certain files (output files). If the user wants to visualise the results in some nice graphical format, then it is possible to use various scripts that will convert it to formats like .VTK which allow it to visualised in programs like Paraview. 
+\item You will spending most of your time at the terminal screen! There is a GUI that can be used, but you will mostly be compiling and using the code through the terminal. This may take some getting used to! Some techniques which should be practised include: compiling code, changing directories,  moving directories, executing code.
+\end{itemize}
+
+\section{Installation on Ubuntu}
+Now this is a task and a half (well so it felt at the time). There are a few things that were not immediately obvious to me during the process. Here are some pointers
+\begin{enumerate}
+\item The first thing to do is to copy the files from the cd to an appropriate directory. In all the examples given by Diffpack, it is installed in /usr/local/, so I just put the files there.
+\item I created a temporary folder called dptmp and within this I put the folder kernel (of the appropriate architecture type). eg. for a 32-bit linux system this folder is in the linux-gcc402 folder on the cd.
+\item We then issue the following command to run the installation script 
+\begin{verbatim}
+sh dptmp/kernel/install-dp.sh -r /usr/local -m linux-gcc-4.0.2 
+-s /usr/local/dptmp/kernel
+\end{verbatim}
+\item We now need to edit the .profile file by placing come lines at the end. We can edit it by typing {\bf sudo vi ~/.profile}. We then put the following lines at the end of the file
+\begin{verbatim}
+export NOR=/usr/local/NO
+export MACHINE_TYPE=linux-gcc-4.0.2
+. $NOR/etc/setup/dpshrc
+\end{verbatim} 
+\item We are now able to create a project with Diffpack by changing to a suitable directory and then issuing the command {\bf Mkdir newprojectname}. This will create a folder where we will store our source files. 
+\item We can create a file called {\bf newprojectname.cpp} and in this we can use all the various Diffpack classes and variable types to get a FE code running. Once we have saved the file we can compile and link the code just by simply typing {\bf Make}.
+\item However, on my first attempt it didn't compile straight away since there were several libraries that I needed to install. For example, I got the error about some library called -lXext - this is solved by going into the Ubuntu package manager, searching for the library and installing it. This may have to be done for several libraries\footnote{Some of the packages I needed to install were Xext, libxt6-dbg, libxt-dev, x11proto-xext-dev, tcl, osmesa, tk8}.
+\item Finally, it is necessary to get a licence key for Diffpack which requires both a hostname and hostid. We can get the hostname by typing {\bf uname -a}. But to get the hostid I need to change into the directory \$NOR/ext/FLEXlm/linux-gcc-4.0.2 and run the command {\bf ./lmutil lmhostid}
+\end{enumerate}
+
+\section{Installation on Mac OS X}
+
+Installation on a Mac is also possible, although it is clear that it is not supported by the team in Nurnburg. We follow much the same process as for linux, making sure that we change the MACHINE TYPE and copy the correct diffpack kernel into our installation directory. Once we have things installed, there were a few things that were a bit unusual:
+\begin{itemize}
+\item I edited my .bashrc file (this is kept in the home folder\footnote{we get here by typing cd $\sim$}) and it looks like
+\begin{verbatim}
+export PATH=.:$PATH
+export NOR=/usr/local/Diffpack/NO/
+export MACHINE_TYPE=mac-gcc-4.2
+. /usr/local/Diffpack/NO/etc/setup/dpshrc
+\end{verbatim}
+\item It appears the the commands Mkdir and Make which are Diffpack specific do not work in mac directly since we find that the commands are case-insensitive in mac (ie. Mkdir is the same as mkdir). So to run the specific Diffpack commands we would need to type, for example
+\begin{verbatim}
+$NOR/bin/Mkdir
+\end{verbatim}
+\item We can also use Diffpack through Xcode which makes debugging a lot easier. There is a pdf created by the people at diffpack explaining these details, but it is probably easier just to email me\footnote{robertnsimpson@gmail.com} since I can send you a working xcode project with all the Diffpack settings.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+

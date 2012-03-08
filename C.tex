@@ -1,0 +1,201 @@
+\chapter{C}
+
+\section{Strings}
+
+We can declare a string in C as follows:
+
+\begin{verbatim}
+char string[] = ``Example string'';
+\end{verbatim}
+Or even allocate an array with more space than is necessary:
+\begin{verbatim}
+char string[20] = ``Example string'';
+\end{verbatim}
+
+The variable ``string'' is basically a pointer to a char so we can make the following assignment
+\begin{verbatim}
+char* ptr = string;
+\end{verbatim}
+This feature is used to pass arrays into functions - we pass by reference and not by value. Note that the pointer here is a reference to an existing string, and therefore the string must exist somewhere in memory if are to use it for any sensible reason. 
+
+
+\section{Variable Types}
+
+There are various variable types that are defined in C, some of which are machine dependent, so be careful!
+\begin{table}[htdp]
+\caption{default}
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline 
+char & single byte\\
+int & integer which is implementation defined\\
+float & single-precision floating point\\
+double & double precision floating point\\
+short int & The 'int' can be removed, but this is usually 16 bits long\\
+long int & Likewise the 'long' can be removed, but usually 32 bits\\
+\hline
+\end{tabular}
+\end{center}
+\label{default}
+\end{table}%
+
+In addition, we can have unsigned and signed values for each of the integer types (char, int) which, instead of using the most significant digit to represent the sign of the number, can be used to increase the value of the maximum number. 
+
+To determine the ranges of these variables, we can use the C library functions contained in $<$limits.h$>$. For example:
+\begin{verbatim}
+#include <stdio.h>
+#include <limits.h>
+
+int main(int argc, char* argv[])
+{
+	printf("The max value of a char is %d\n", CHAR_MAX);
+	printf("The min value of a char is %d\n", CHAR_MIN);
+	
+	printf("The max value of an int is %d\n", INT_MAX);
+	printf("The min value of an int is %d\n", INT_MIN);
+	
+	printf("The max value of an unsigned int is %u\n", UINT_MAX);
+	
+	printf("The max signed long int value is %ld\n", LONG_MAX);
+	printf("The min signed long int value is %ld\n", LONG_MIN);
+	
+	printf("The max unsigned long int value is %lu\n", ULONG_MAX);
+	
+	printf("The max signed short int value is %d\n", SHRT_MAX);
+	printf("The min signed short int value is %d\n", SHRT_MIN);
+	
+	printf("The max unsigned short int value is %d\n", USHRT_MAX);
+	
+	return 0;
+}
+\end{verbatim}
+
+On my machine, this generates the following output
+\begin{verbatim}
+The max value of a char is 127
+The min value of a char is -128
+The max value of an int is 2147483647
+The min value of an int is -2147483648
+The max value of an unsigned int is 4294967295
+The max signed long int value is 9223372036854775807
+The min signed long int value is -9223372036854775808
+The max unsigned long int value is 18446744073709551615
+The max signed short int value is 32767
+The min signed short int value is -32768
+The max unsigned short int value is 65535
+\end{verbatim}
+
+
+
+\section{Octal and Hexadecimal}
+
+To represent a number in octal, we precede the number with a zero. Therefore the number 
+\begin{verbatim}
+0177
+\end{verbatim}
+represents 127 in base 10 notation. To represent a hexadecimal number, we precede the digits with 0x:
+\begin{verbatim}
+0x11
+\end{verbatim}
+which represents 17 in base 10.
+
+\section{Enumeration}
+
+To generate a list of constant values which represent certain values, it is often convenient to use enumerated lists. These can be generated like:
+\begin{verbatim}
+enum boolean {no, yes};
+\end{verbatim}
+Or with certain values specified:
+\begin{verbatim}
+enum escapes {BELL = '\a', BACKSPACE = '\b', TAB= '\t'};
+\end{verbatim}
+
+\section{Condition expressions}
+
+A really nice an succint way of writing an if ... else ...statement is by
+\begin{verbatim}
+z = (a > b) ? a : b;
+\end{verbatim}
+Which basically defines a function z=max(a,b). It is equivalent to 
+\begin{verbatim}
+if (a > b)
+	z = a;
+else 
+	z = b;
+\end{verbatim}
+
+\section{Functions}
+
+\subsection{Inline functions}
+
+If you see the keyword ``inline'' at the beginning of a function then this tells the compiler than whenever this function is called, then the entire function is replaced by the call in the machine code. It should only be used for small functions and should theoretically speed up the code. However, the compiler may choose to ignore the inline function.
+
+
+\section{Small Hints}
+
+\subsection{Why do we use int instead of char for getchar()}
+This is detailed on pg. 16 of K \& R, but the reason comes down to one simple fact. If we use a char to represent character input this is fine if the only input is any real character (eg. 'a', 'A', '0' ...). But if we want to terminate the input with the EOF character, then we need a variable which is capable of holding not only every possible real character, but also the EOF character. The variable char is not big enough to do this, so we use int as a compromise.  
+
+\subsection{Increment and decrement operators}
+
+We can use the following increment operators
+\begin{verbatim}
+++ 	: 	increment (add one)
+--	: 	decrement (subtract one)
+\end{verbatim}
+But there is subtle different if we use these operators as a suffix or a prefix. Consider the following:
+\begin{verbatim}
+n = 5;
+x = n++;
+\end{verbatim}
+Here, x will equal 5. Now consider
+\begin{verbatim}
+n = 5;
+x = ++n;
+\end{verbatim}
+x will now equal 6. Using the operator as a prefix means that the increment operator is applied before the variable is used. This can be useful in many scenarios.
+
+\subsection{EOF}
+
+On the mac, the End Of File character is given by Ctrl-D. So we may get input in a C program using 
+\begin{verbatim}
+int c;
+while((c = getchar()) != EOF) {
+ ...
+}
+\end{verbatim}
+
+\section{Standard Library}
+
+\subsection{Ctype.h}
+
+\subsection{isspace(int)}
+
+This function determines whether or not the character being passed in is a white-space character (eg newline, tab, space, carriage-return). and will return a non-zero value if so. eg.
+\begin{verbatim}
+#include <stdio.h>
+#include <ctype.h>
+
+int main(int argc, char* argv[])
+{ 
+    char* string = "This is the string to test for \n characters etc.\t\t";
+    printf("%s\n", string);
+
+    int c = 0;
+    while ( string[c] != '\0' ) { 
+        printf("%d", isspace(string[c]));
+        c++;
+    }   
+
+    return 0;
+}
+\end{verbatim}
+This outputs:
+\begin{verbatim}
+This is the string to test for 
+ characters etc.		
+00001001000100000010010000100011100000000001000011
+\end{verbatim}
+
+
+

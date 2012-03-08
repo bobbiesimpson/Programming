@@ -1,0 +1,35 @@
+\chapter{Merlin (Cardiff)}
+
+\section{Preliminaries}
+
+\subsection{Logging in}
+
+
+Fire up a terminal and type in 
+\begin{verbatim}
+ssh -X <username> merlinlogin01.arcca.cf.ac.uk
+\end{verbatim}
+
+\subsection{Compiling a simple project}
+
+Load the modules
+\begin{verbatim}
+module load intel/compilers/11
+module load intel/mpi/4.0
+\end{verbatim}
+
+and compile with mpi
+\begin{verbatim}
+mpicc -o app hello.c
+\end{verbatim}
+
+And submit the job with an appropriate qsub script
+\begin{verbatim}
+qsub batch.pbs
+\end{verbatim}
+
+Appropriate output files will be created.
+
+
+
+

@@ -1,0 +1,144 @@
+
+\chapter{Objective-C}
+\label{cha:objective-c}
+
+These notes have come about from my desire to learn to program for the Mac OS and the iphone OS. Objective-C is the primary language for these operating systems, and we find that there are many similarities with the more traditional C and C++ programming languages but it is clear that the designers of the language have gone to great lengths to try and remove some of the difficulties created with memory management and other non-trivial tasks that are seen in object-orientated languages like C++.
+
+Throughout, examples make use of the Cocoa framework which is a collection of classes that make the creation of custom classes much easier. For instance, the NSObject class sorts out the allocation of instance variables making our own class implementations much more simple.
+
+\section{Self and super}
+\label{sec:self-super}
+
+One of the first things that must be done when creating a class is the use of an initialiser, which might be invoked as follows:
+\begin{lstlisting}
+myclass* object =  [[myclass alloc] init];
+\end{lstlisting}
+What we have done here is to allocate the memory for the object (through the call to ``alloc'') and then initalise the variables of the object (through the call to ``init''). This is a common routine in objective-c.
+
+If we now look at the implementation for the init() function for myclass, we might see something like this:
+\begin{lstlisting}
+-(id) init
+{
+	if( self = [super init] )
+	{
+		// initialise member variables here
+	}
+	return self;
+}
+\end{lstlisting}
+This requires a bit of explanation. First of all note that we use the return type of id which means that different types may be returned by this function. This would be the case if we were to subclass this class and call [super init] from the base class.
+
+Next, we see a call to [super init] with the return value assigned to self. What we must realise is that super and self implicity refer to the same instance - the difference is only highlighted when we call functions of each of these variables. When we call functions on self we look for that function within the body of the class we are currently in. That is, if we made a call like
+\begin{lstlisting}
+[self startup];
+\end{lstlisting}
+we would look in myclass's implementation to find it. 
+
+If we were to do the same but use super instead, then what this means is that we start the search in the ``superclass'' (the class we inherit from). So a call to 
+\begin{lstlisting}
+  [super startup];
+\end{lstlisting}
+would look in myclass's superclass for a function ``startup''.
+
+But why is this important for our init function? The reason is that we wish to make sure the superclass's instance variables are initialised properly before we begin the initialisation of our own class's variable's. We make a call to the superclass's init function, and as long as nil is not returned, we proceed to our own initialisation. 
+
+\section{Properties}
+\label{sec:properties}
+
+The syntax of objective-C makes defining ``properties'' (essentially
+member variables which have getters and setters) very easily. In the
+interface, we can define them like so:
+
+\begin{lstlisting}
+ @interface MyClass
+
+@property( nonatomic, strong ) NSString* mystring;
+\end{lstlisting}
+where the keyword ``strong'' infers that reference counting is used
+for the member variables. We can then ``synthesise'' the variables in
+the implementation file as:
+\begin{lstlisting}
+  @implementation
+
+@synthesize mystring = __mystring;
+\end{lstlisting}
+
+The name after the equals sign is actually optional, and if we hadn't
+specified this, then the member variable name would have been
+synthesized as ``mystring''. What we have actually done here is to create the getter and setter for
+mystring which can be used as:
+\begin{verbatim}
+self.mystring = otherstring;
+[self setMystring:otherstring];
+\end{verbatim}
+
+(for the setters) and
+\begin{verbatim}
+otherstring = self.mystring;
+otherstring = [self mystring];
+\end{verbatim}
+but we have also created the member variable ``\_\_mystring'' which
+has a double underscore prefix as a sort of warning to users that they
+should be very careful if they are going to change this pointer
+directly. Really, it should only be accessed through the getters and
+setters for safety.
+
+
+\section{Automatic Reference Counting (ARC)}
+\label{sec:autom-refer-count}
+
+This a new feature of iOS 5.0 which relieves the programmer from the
+need to remember to include appropriate ``release'' and ``retain''
+calls to prevent memory leaks. Coming from a C++ background, it
+appears that ARC is extremely similar to the shared\_ptr as implemented
+in the tr1 namespace. The point of this type is to create pointers to
+objects that implement reference counting so that if more than one
+pointer ``owns'' the object the object will be kept alive in
+memory. As soon as the reference count becomes zero, then this object
+is released from memory. Apple has implemented a very similar technology but the syntax is
+(obviously) different. If ARC is turned on for the project, then by
+deafault when a variable is declared it is of type ``strong'' which
+means that reference counting will be applied to it. This means that
+the variable will be kept alive in memory until the pointer goes out
+of scope. For instance, we can now define a string like so, without
+having to worry about retaining and releasing the memory:
+\begin{verbatim}
+{
+   NSString* mystring = [[NSString alloc] init];
+   // Do some tasks with mystring - no need for release
+}
+// mystring has been deallocated since the pointer has gone out of scope
+\end{verbatim}
+
+An interested point which I noted in a forum was that the need for
+properties is now diminished. This is because properties provided a
+convenient way of remember to release and retain member variables by
+calling setters and getters. But now, since ARC has automated this
+process, we don't necessarily need to use them to such a great
+extent. For instance, we can create use a member variable like:
+\begin{verbatim}
+@interface
+{
+   NSString* mystring;
+}
+
+@implementation
+
+-(id)init
+{
+   if(self = [super init])
+   {
+       mystring = [[NSString alloc] init];
+       // no need for self.mystring = [[NSString alloc] init];
+   }   
+}
+\end{verbatim}
+
+But if we wish to implement a public interface for getters and
+setters, then we may still wish to use properties. Their need however,
+is greatly diminshed.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "Programming"
+%%% End: 

@@ -1,0 +1,105 @@
+\chapter{Accelerate framework}
+
+\section{ARM architecture/NEON}
+
+\subsection{ARMv7}
+\begin{itemize}
+\item Used in iphone 3Gs, ipad, iphone 4, ipod 3rd generation touch. 
+\item SIMD unit called NEON
+\item eg. the function 
+\begin{verbatim}
+vmul.f32 qo, q1, q2
+\end{verbatim}
+will multiply four 32-bit floats from q2 with four 32-bit floats from q1 and store the result in q0.
+\item The point is that this is done {\bf simulataneously}.
+\item NEON does not use double precision units.
+\item NEON may use more power but, since the instructions will take less time, overall they may be more efficient.
+\end{itemize}
+
+\section{What can be done in the accelerate framework}
+
+\begin{itemize}
+\item New to iphone 4.0.
+\item Consists of many libraries, only three of which are currently available in iphone os 4.0. These are vDSP, LAPACK and BLAS.
+\item vDSP (Digital Signal Processing library). 
+\item eg. Dot product
+\begin{verbatim}
+#include <Accelerate/Accelerate.h>
+
+float dotProduct;
+vDSP_dotpr(a, 1, b, 1, &dotProduct, n);  // take in pointers to two arrays 
+\end{verbatim}
+\item This code is 8x faster than simple for loop. We also use approx. 1/4 of the energy.
+\item Important to note that this can be used on different hardware.
+\end{itemize}
+
+\subsection{LAPACK}
+\begin{itemize}
+\item Been around a long time.
+\item High level linear algebra.
+\item Matrix factorisations.
+\item Eigenvalues/vectors
+\item Single/Double precision
+\item Real/complex data types
+\item Different matrix types
+\item Because it comes from Fortran, it is laid out in column major order
+\begin{verbatim}
+float b[n];
+b[0]=5.f; b[1]  = 5.f; b[2] = 4.f; b[3] = -2.f;
+
+__CLPK_integer nrhs = 1;
+__CLPK_integer ipiv[n];
+__CLPK_integer info;
+
+sgesv_(&n, &nrhs, A, &n, ipiv, b, &n, &info);
+printf(``The solution is: (\%f, \%f, \%f, \%f)\n'', b[0],b[1], b[2], b[3]);
+
+\end{verbatim}
+\item when we compile this we must link against the accelerate framework eg.
+\begin{verbatim}
+gcc lapack.c -framework Accelerate -std=c99 -o lapackExample
+./lapackExample
+\end{verbatim}
+\item The -std=c99 flag specifies we are using the 1999 standard of C.
+\end{itemize}
+
+\subsection{BLAS}
+
+\begin{itemize}
+\item Low level stuff
+\item eg. Dot product, vector products
+\item Matrix-vector products
+\item Matrix multiplies
+\item Supports for both row and column major order
+\item Can use dense and triangular matrices
+\begin{verbatim}
+#include <Accelerate/Accelerate.h>
+#include <stdio.h>
+int main()
+{
+float A[2][2] = {{1.f, 1.f}, 
+		        {0.f, 1.f}};
+float B[2][2] = {{1.f, 2.f}, 
+		        {3.f, 4.f}};	
+float C[2][2];
+
+cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+    		    2, 2, 2, 1.f, A, 2, B, 2, 0.f, C, 2);	
+     		    
+printf("%f, %f, %f, %f\n", C[0][0], C[0][1], C[1][2], C[2][2]);
+
+return(0);
+}        	        	
+\end{verbatim}
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+

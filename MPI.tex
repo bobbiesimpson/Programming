@@ -1,0 +1,45 @@
+\chapter{OpenMP/MPI}
+
+\section{MPI}
+
+\begin{verbatim}
+int mpierr, proc, rank;
+
+int MPI_INIT(int *argc, char **argv);	 // initalise the MPI runtime environment - must be called
+
+
+// do some parallel stuff
+
+int MPI_Finalize(void);	// finish everything
+\end{verbatim}
+
+\begin{itemize}
+\item We must realise the the processes are totally disconnected - we don't know which order they will come back. 
+\end{itemize}
+
+\section{Compiling}
+
+\begin{verbatim}
+mpiicc -o helloc hello.c
+\end{verbatim}
+
+\section{Running}
+
+\begin{verbatim}
+mpirun -np 8 helloc // run with 8 processes
+\end{verbatim}
+
+When it returns, execution is completed.
+
+We can then run  
+
+\section{Domain decomposition}
+
+The idea is that we divide the work into smaller chunks which are done on individual processors. We then combine these results to end up with the global result. 
+
+We can use tags to distinguish between messages. There is also NULL type which will not do anything if it received - the message is discarded. 
+
+We can also use a technique called ``probing''. Useful to determine message tag/source.
+
+We should make good use of the MPI_PROC_NULL which basically means that nothing is done when this is received or is sent. 
+

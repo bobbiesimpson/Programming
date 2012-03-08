@@ -1,0 +1,28 @@
+\chapter{Fortran}
+
+\section{Introduction}
+
+Just as introduction, let us print out a very simple Fortran 95 program that loops 1000000000 times. 
+\begin{lstlisting}[label=static,caption=Simple fortran program]
+PROGRAM timeProgram
+! Here is a program 
+	IMPLICIT NONE
+	integer(8) :: i
+	real(8) :: j
+	real, dimension(2) :: tarray
+	real :: result
+	call ETIME(tarray, result)
+	do i = 1,1000000000
+		j = sqrt(real(i))
+	end do
+	call ETIME(tarray, result)
+	print * , result
+	print * , tarray(1)
+	print * , tarray(2)
+END PROGRAM timeProgram
+\end{lstlisting}
+To complile this program on a mac we type
+\begin{verbatim}
+gfortran program.f95
+\end{verbatim}
+The suffix .f95 is important.
