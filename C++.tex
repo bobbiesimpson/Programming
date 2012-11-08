@@ -998,6 +998,112 @@ int main()
 }	
 \end{lstlisting}
 
+\subsection{Copy constructors and assignment operators in derived classes}
+\label{sec:copy-constr-assignm}
+
+In most cases we can simply use the default copy constructor and
+assignment operator as created by the compiler, but when we explicitly
+declare them ourselves, we must take extra care when dealing with
+classes that are derived from others. Scott Meyers gives an excellent
+explanation of this in his book ``Effective C++'' in the section
+entitled ``Copy all parts of an object''.
+
+Let's explain the scenario through an example.
+
+Consider a base class in which we define a custom copy constructor and
+assignment operator:
+\begin{lstlisting}
+class Base
+{
+     public:
+      
+     // constructor , destructor definitions etc.
+
+     // copy constructor
+     Base( const Base& other )
+     {
+          mData = other.mData;
+     }
+
+     // assignment operator
+     Base& operator=( const Base& other )
+     {
+          if( this == &other )
+               return *this;
+          mData = other.mData;
+    }
+
+    private:
+    
+    // some private data
+    int mData;
+};
+\end{lstlisting}
+We now define a class which derives from this class and proceed with a
+na\"{i}ve implementation for both the copy constructor and default
+assignment operator:
+\begin{lstlisting}
+class Derived : public Base
+{
+     public:
+      
+     // constructor , destructor definitions etc.
+
+     // copy constructor
+     Derived( const Derived& other )
+     {
+          mData = other.mDerivedData;
+     }
+
+     // assignment operator
+     Derived& operator=( const Derived& other )
+     {
+          if( this == &other )
+               return *this;
+          mData = other.mDerivedData;
+    }
+
+    private:
+    
+    // some private data
+    double mDerivedData;
+};
+\end{lstlisting}
+This will almost definitely produce unintended consequences since
+whenever an object of type Derived is copied the data corresponding
+to the Base class will not be copied. To ensure that the Base class
+data is copied in addition to the Derived class data, we need to
+modify the copy constructor and assignment operator as follows:
+\begin{lstlisting}
+class Derived : public Base
+{
+     public:
+      
+     // constructor , destructor definitions etc.
+
+     // copy constructor
+     Derived( const Derived& other ) 
+       : Base( other )   // this will call the base classs copy constructor
+     {
+          mData = other.mDerivedData;
+     }
+
+     // assignment operator
+     Derived& operator=( const Derived& other )
+     {
+          if( this == &other )
+               return *this;
+          Base::operator=( other );         // explicitly call base class assignment op.
+          mData = other.mDerivedData;
+    }
+
+    private:
+    
+    // some private data
+    double mDerivedData;
+};
+\end{lstlisting}
+
 
 \section{Virtual Functiions}
 
@@ -1117,6 +1223,7 @@ int main()
 	return 0;
 }
 \end{lstlisting}
+
 In this program we have put the part of code where we want to test for
 exceptions within a ``try()'' block. Whenever we ``throw'' and
 exception, then we leave this block immediately and then we look for a
