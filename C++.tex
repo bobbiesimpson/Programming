@@ -213,6 +213,75 @@ Derived& Derived::operator=(Derived& rhs)
 \end{lstlisting}
 Job done!
 
+\subsection{Move operations}
+\label{sec:move-operations}
+
+With the advent of C++11, the possiblity of \textit{moving} data
+rather than copying becomes a possibility. This is only achievable by
+the introduction of \textit{rvalue references}. The syntax for an rvalue reference of type T is written as
+\begin{verbatim}
+T&& // Rvalue reference. 
+\end{verbatim}
+
+One of the main purposes of introducing this new syntax into C++11 is to allow efficient move operations rather than performing expensive copies. The good news is that for classes which do not perform memory management of resources (e.g. pointers, smart pointers, locks ) the require move operations are provided my default by the compiler. However, if this is not the case, we must define them ourselves. 
+
+If we take the case of a class called Widget which owns a smart pointer, we might define the constructor, copy constructor and assignment operator as follows:
+\begin{lstlisting}
+#include <iostream>
+#include <memory>
+#include <utility>
+
+class Widget
+{
+	public:
+
+	/// Default constructor
+	explicit Widget( int i = 0 ) : mpData{ new int( i ) } { std::cout << "Constructor called\n"; }
+
+	/// Copy constructor
+	Widget( const Widget& w ) : mpData{ new int( *w.mpData ) } { std::cout << "Copy constructor called\n"; }
+
+	/// Assignment operator
+	Widget& operator=( const Widget& w )
+	{
+		std::cout << "Assignment operator called\n";
+		if( this != &w )
+		{
+			mpData.reset( new int( *w.mpData ) );
+		}
+		return *this;
+	}
+	
+	private:
+
+	std::unique_ptr< int > mpData;
+	
+};
+
+int main( const int argc, const char* argv[] )
+{
+	Widget w1, w2;
+	w2 = w1;
+	Widget w3 = w2;
+	return 0;
+}
+\end{lstlisting}
+
+If wish to use proper move semantics with this class, then we need to add two additional functions referred to as the move constructor and move assignment operator. For this example, we can define them as
+\begin{lstlisting}
+	/// Move constructor
+	Widget( Widget&& w ) : mpData( std::move( w.mpData ) ) { std::cout << "Move constructor called\n"; }
+
+	/// Move assignment operator
+	Widget& operator=( Widget&& w )
+	{
+		mpData = std::move( w.mpData );
+		return *this;
+	}
+\end{lstlisting}
+
+The important feature is the use of std::move() which ensures that the variable passed as an argument to this function is treated as an rvalue. Thus, in each of these functions the smart pointer is not copied (in fact, copy operations are illegal for $std::unique_ptr$) but is \textit{moved} to the other Widget. For certain classes, the use of the move operations can lead to substantial gains in efficiency. 
+
 \subsection{Static members}
 
 \emph{BS: pp. 228-229}
